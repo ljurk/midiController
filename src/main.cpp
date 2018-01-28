@@ -4,7 +4,9 @@
 int potVal[8];
 byte controlVal[8];
 byte controlValOld[8];
+//iterator
 byte i = 0;
+//tolarance for pot Movement
 byte tolarance = 5;
 
 void setup() {
