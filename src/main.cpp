@@ -1,5 +1,7 @@
 #include <Arduino.h>
 
+int cc = 176; //controlChange on Channel 1
+byte controlNum[8] = {21,22,23,24,25,26,27,28};
 //pots
 int potVal[8];
 byte controlVal[8];
@@ -8,19 +10,24 @@ byte controlValOld[8];
 byte i = 0;
 //tolarance for pot Movement
 byte tolarance = 5;
-
-void setup() {
- pinMode(2, OUTPUT);
- pinMode(3, OUTPUT);
- pinMode(4, OUTPUT);
- Serial.begin(9600);
+void sendCC(byte cc,byte controlNum,byte value) {
+  Serial.write(cc);
+  Serial.write(controlNum);
+  Serial.write(value);
 }
 
 void selectIcInput(byte pin) {
    digitalWrite(2, bitRead(pin, 2));
    digitalWrite(3, bitRead(pin, 1));
    digitalWrite(4, bitRead(pin, 0));
- }
+}
+
+void setup() {
+ pinMode(2, OUTPUT);
+ pinMode(3, OUTPUT);
+ pinMode(4, OUTPUT);
+ Serial.begin(31250);
+}
 
 void loop () {
   for ( i = 0 ; i < 8; i++ ) {
@@ -31,10 +38,11 @@ void loop () {
 
     if(controlVal[i] <= controlValOld[i] - tolarance || controlVal[i] > controlValOld[i] + tolarance ) {
       delay(200);
-      Serial.print(i);
-      Serial.print(":");
-      Serial.print(controlVal[i]);
-      Serial.println("");
+      sendCC(cc,controlNum[i], controlVal[i]);
+      //Serial.print(i);
+      //Serial.print(":");
+      //Serial.print(controlVal[i]);
+      //Serial.println("");
       controlValOld[i] = controlVal[i];
     }
   }
