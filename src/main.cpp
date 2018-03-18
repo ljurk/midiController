@@ -6,11 +6,12 @@ byte controlNum[8] = {102,104,100,106,101,105,103,107};
 int potVal[8];
 int potValOld[8];
 byte controlVal[8];
-//byte controlValOld[8];
+
 //iterator
 byte i = 0;
 //tolarance for pot Movement
 byte tolarance = 5;
+int midiByte = 0 ;
 
 void sendCC(byte cc,byte controlNum,byte value) {
   Serial.write(cc);
@@ -33,18 +34,22 @@ void setup() {
 
 void loop () {
   for ( i = 0 ; i < 8; i++ ) {
+    if (Serial.available() > 0) {
+      midiByte = Serial.read() ;
+      Serial.write(midiByte) ;
+    }
     selectIcInput(i);
     potVal[i] = analogRead(A0);
     potVal[i] = 0.2 * potVal[i] + 0.8 * analogRead(A0);
     controlVal[i] = map(potVal[i],0,1023,0,127);
 
     if(potVal[i] <= potValOld[i] - tolarance || potVal[i] > potValOld[i] + tolarance ) {
-      delay(200);
+      //delay(200);
+      if (Serial.available() > 0) {
+        midiByte = Serial.read() ;
+        Serial.write(midiByte) ;
+      }
       sendCC(cc,controlNum[i], controlVal[i]);
-      //Serial.print(i);
-      //Serial.print(":");
-      //Serial.print(controlVal[i]);
-      //Serial.println("");
       potValOld[i] = potVal[i];
     }
   }
