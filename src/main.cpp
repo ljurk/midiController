@@ -1,5 +1,5 @@
 #include <Arduino.h>
-
+//test Git+
 int cc = 176; //controlChange on Channel 1
 byte controlNum[8] = {102,104,100,106,101,105,103,107};
 //pots
@@ -25,6 +25,13 @@ void selectIcInput(byte pin) {
    digitalWrite(4, bitRead(pin, 0));
 }
 
+void checkMidiIn() {
+  if (Serial.available() > 0) {
+    midiByte = Serial.read() ;
+    Serial.write(midiByte) ;
+  }
+}
+
 void setup() {
  pinMode(2, OUTPUT);
  pinMode(3, OUTPUT);
@@ -34,21 +41,14 @@ void setup() {
 
 void loop () {
   for ( i = 0 ; i < 8; i++ ) {
-    if (Serial.available() > 0) {
-      midiByte = Serial.read() ;
-      Serial.write(midiByte) ;
-    }
+    checkMidiIn();
     selectIcInput(i);
     potVal[i] = analogRead(A0);
     potVal[i] = 0.2 * potVal[i] + 0.8 * analogRead(A0);
     controlVal[i] = map(potVal[i],0,1023,0,127);
 
     if(potVal[i] <= potValOld[i] - tolarance || potVal[i] > potValOld[i] + tolarance ) {
-      //delay(200);
-      if (Serial.available() > 0) {
-        midiByte = Serial.read() ;
-        Serial.write(midiByte) ;
-      }
+      checkMidiIn();
       sendCC(cc,controlNum[i], controlVal[i]);
       potValOld[i] = potVal[i];
     }
